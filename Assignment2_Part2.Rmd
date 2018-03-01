@@ -1,0 +1,232 @@
+---
+title: "Computational Modeling - Week 5 - Assignment 2 - Part 2"
+author: "Riccardo Fusaroli"
+date: "2/19/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## In this assignment we learn how to assess rates from a binomial distribution, using the case of assessing your teachers' knowledge of CogSci.
+
+### Second part: Focusing on predictions
+
+Last year you assessed the teachers (darned time runs quick!). Now you want to re-test them and assess whether your models are producing reliable predictions. In Methods 3 we learned how to do machine-learning style assessment of predictions (e.g. rmse on testing datasets). Bayesian stats makes things a bit more complicated. So we'll try out how that works. N.B. You can choose which prior to use for the analysis of last year's data.
+
+Questions to be answered (but see guidance below):
+1- Write a paragraph discussing how assessment of prediction performance is different in Bayesian vs. frequentist models
+- thresholds (p-values, power)
+predict and compare using the rmse
+bayesian:
+not about power or rules
+a lot of uncertainty
+2- Provide at least one plot and one written line discussing prediction errors for each of the teachers.
+
+This is the old data:
+- Riccardo: 3 correct answers out of 6 questions
+- Kristian: 2 correct answers out of 2 questions (then he gets bored)
+- Josh: 160 correct answers out of 198 questions (Josh never gets bored)
+- Mikkel: 66 correct answers out of 132 questions
+
+This is the new data:
+- Riccardo: 9 correct answers out of 10 questions (then he freaks out about teaching preparation and leaves)
+- Kristian: 8 correct answers out of 12 questions
+- Josh: 148 correct answers out of 172 questions (again, Josh never gets bored)
+- Mikkel: 34 correct answers out of 65 questions
+
+Guidance Tips
+
+1. There are at least two ways of assessing predictions.
+2. Last year's results are this year's expectations.
+  - the old posterior as new prior
+3. Are the parameter estimates changing? (way 1)
+  - parameter = posterior
+  does the posterior move when you run it on new data
+4. How does the new data look in last year's predictive posterior? (way 2)
+  - plot the predictive posterior from last year together with the new data
+
+```{r}
+
+#Riccardo
+dens =100
+p_grid = seq(from =0, to =1, length.out = dens)
+#define prior
+prior <- rep( 1 , dens ) # Flat
+#prior= ifelse(p_grid < 0.5 , 0 , 1) informed
+#compute likelihood
+likelihoodRF =dbinom(3, 6, prob = p_grid) #taking the two values we know 0/1
+#compute posterior
+unstd.posteriorRF <- likelihoodRF * prior
+#standardize posterior
+posteriorRF <- unstd.posteriorRF / sum(unstd.posteriorRF)
+
+Data=data.frame(grid=p_grid,posterior=posteriorRF,prior=prior,likelihood=likelihoodRF)
+ggplot(Data,aes(grid,posterior))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior/dens),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+
+
+# new data
+priorRF2 = posteriorRF
+likelihoodRF2 =dbinom(9, 10, prob = p_grid)
+unstd.posteriorRF2 <- likelihoodRF2 * priorRF2
+posteriorRF2 <- unstd.posteriorRF2 / sum(unstd.posteriorRF2)
+
+Data2=data.frame(grid=p_grid,posterior=posteriorRF2,prior=priorRF2,likelihood=likelihoodRF2)
+ggplot(Data2,aes(grid,posterior))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+```
+
+
+
+```{r}
+#Kristian
+dens =100
+p_grid = seq(from =0, to =1, length.out = dens)
+#define prior
+priorKT <- rep( 1 , dens ) # Flat
+#prior= ifelse(p_grid < 0.5 , 0 , 1) informed
+#compute likelihood
+likelihoodKT =dbinom(2, 2, prob = p_grid) #taking the two values we know 0/1
+#compute posterior
+unstd.posteriorKT <- likelihoodKT * priorKT
+#standardize posterior
+posteriorKT <- unstd.posteriorKT / sum(unstd.posteriorKT)
+
+Data=data.frame(grid=p_grid,posterior=posteriorKT,prior=priorKT,likelihood=likelihoodKT)
+ggplot(Data,aes(grid,posteriorKT))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior/dens),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+
+# new data
+priorKT2 = posteriorKT
+likelihoodKT2 =dbinom(8, 12, prob = p_grid)
+unstd.posteriorKT2 <- likelihoodKT2 * priorKT2
+posteriorKT2 <- unstd.posteriorKT2 / sum(unstd.posteriorKT2)
+
+Data2=data.frame(grid=p_grid,posterior=posteriorKT2,prior=priorKT2,likelihood=likelihoodKT2)
+ggplot(Data2,aes(grid,posterior))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+
+
+```
+
+```{r}
+#Josh
+p_grid = seq(from =0, to =1, length.out = dens)
+#define prior
+priorJS <- rep( 1 , dens ) # Flat
+#prior= ifelse(p_grid < 0.5 , 0 , 1) informed
+#compute likelihood
+likelihoodJS =dbinom(160, 198, prob = p_grid) #taking the two values we know 0/1
+#compute posterior
+unstd.posteriorJS <- likelihoodJS * priorJS
+#standardize posterior
+posteriorJS <- unstd.posteriorJS / sum(unstd.posteriorJS)
+
+Data=data.frame(grid=p_grid,posterior=posteriorJS,prior=priorJS,likelihood=likelihoodJS)
+ggplot(Data,aes(grid,posteriorJS))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior/dens),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+
+# new data
+priorJS2 = posteriorJS
+likelihoodJS2 =dbinom(148, 172, prob = p_grid)
+unstd.posteriorJS2 <- likelihoodJS2 * priorJS2
+posteriorJS2 <- unstd.posteriorJS2 / sum(unstd.posteriorJS2)
+
+Data2=data.frame(grid=p_grid,posterior=posteriorJS2,prior=priorJS2,likelihood=likelihoodJS2)
+ggplot(Data2,aes(grid,posterior))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+
+
+```
+
+```{r}
+
+#Mikkel
+p_grid = seq(from =0, to =1, length.out = dens)
+#define prior
+prior <- rep( 1 , dens ) # Flat
+#prior= ifelse(p_grid < 0.5 , 0 , 1) informed
+#compute likelihood
+likelihoodMW =dbinom(66, 132, prob = p_grid) #taking the two values we know 0/1
+#compute posterior
+unstd.posteriorMW <- likelihoodMW * prior
+#standardize posterior
+posteriorMW <- unstd.posteriorMW / sum(unstd.posteriorMW)
+
+Data=data.frame(grid=p_grid,posterior=posteriorMW,prior=prior,likelihood=likelihoodMW)
+ggplot(Data,aes(grid,posteriorMW))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior/dens),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+
+# new data
+priorMW2 = posteriorMW
+likelihoodMW2 =dbinom(34, 65, prob = p_grid)
+unstd.posteriorMW2 <- likelihoodMW2 * priorMW2
+posteriorMW2 <- unstd.posteriorMW2 / sum(unstd.posteriorMW2)
+
+Data2=data.frame(grid=p_grid,posterior=posteriorMW2,prior=priorMW2,likelihood=likelihoodMW2)
+ggplot(Data2,aes(grid,posterior))+  geom_point()+geom_line()+theme_classic()+  geom_line(aes(grid,prior),color='red')+  xlab("probability of correct")+ ylab("posterior probability")
+```
+
+
+
+```{r}
+#predictive posterior distribution
+library(rethinking)
+#Riccardo
+samplesRF = sample(p_grid, prob = posteriorRF, size = 1e4, replace = T)
+
+PPRF = rbinom(1e4 ,size =10,prob = samplesRF)
+
+simplehist(PPRF)
+abline( v=9, col="red") 
+
+
+```
+
+```{r}
+#predictive posterior distribution
+#Kristian
+samplesKT = sample(p_grid, prob = posteriorKT, size = 1e4, replace = T)
+
+PPKT = rbinom(1e4 ,size =12,prob = samplesKT)
+
+simplehist(PPKT)
+abline( v=8, col="red") 
+
+
+```
+
+```{r}
+#predictive posterior distribution
+#Josh
+samplesJS = sample(p_grid, prob = posteriorJS, size = 1e4, replace = T)
+
+PPJS = rbinom(1e4 ,size =172,prob = samplesJS)
+
+simplehist(PPJS)
+abline( v=148, col="red") 
+
+
+```
+```{r}
+#predictive posterior distribution
+#Mikkel
+samplesMW = sample(p_grid, prob = posteriorMW, size = 1e4, replace = T)
+
+PPMW = rbinom(1e4 ,size =65,prob = samplesMW)
+
+simplehist(PPMW)
+abline( v=34, col="red") 
+
+
+```
+
+
+
+### Depending on time: Questions from the handbook
+2H1. Suppose there are two species of panda bear. Both are equally common in the wild and live in the same places. They look exactly alike and eat the same food, and there is yet no genetic assay capable of telling them apart. They differ however in their family sizes. Species A gives birth to twins 10% of the time, otherwise birthing a single infant. Species B births twins 20% of the time, otherwise birthing singleton infants. Assume these numbers are known with certainty, from many years of field research.
+Now suppose you are managing a captive panda breeding program. You have a new female panda of unknown species, and she has just given birth to twins. What is the probability that her next birth will also be twins?
+
+2H2. Recall all the facts from the problem above. Now compute the probability that the panda we have is from species A, assuming we have observed only the first birth and that it was twins.
+
+2H3. Continuing on from the previous problem, suppose the same panda mother has a second birth and that it is not twins, but a singleton infant. Compute the posterior probability that this panda is species A.
+
+2H4. A common boast of Bayesian statisticians is that Bayesian inference makes it easy to use all of the data, even if the data are of different types. So suppose now that a veterinarian comes along who has a new genetic test that she claims can identify the species of our mother panda. But the test, like all tests, is imperfect. This is the information you have about the test:
+- The probability it correctly identifies a species A panda is 0.8.
+- The probability it correctly identifies a species B panda is 0.65.
+The vet administers the test to your panda and tells you that the test is positive for species A. First ignore your previous information from the births and compute the posterior probability that your panda is species A. Then redo your calculation, now using the birth data as well.
